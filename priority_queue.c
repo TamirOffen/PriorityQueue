@@ -11,7 +11,7 @@ PQElement* elements;
 PQElementPriority* priorities;
 
 int size;
-int maxsize;
+int max_size;
 int iterator;
 
 CopyPQElement copy_element;
@@ -64,7 +64,7 @@ PriorityQueue pqCreate(CopyPQElement copy_element,
 
 
     priority_queue->size = 0;
-    priority_queue->maxsize = INITIAL_SIZE;
+    priority_queue->max_size = INITIAL_SIZE;
     priority_queue->iterator = 0;
 
 
