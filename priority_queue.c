@@ -3,6 +3,12 @@
 #include <stdlib.h>
 #include "priority_queue.h"
 
+
+/*----------------------------------------------------------------------
+                         Implementation constants
+ ----------------------------------------------------------------------*/
+
+
 #define INITIAL_SIZE 10
 
 struct PriorityQueue_t {
@@ -25,6 +31,64 @@ ComparePQElementPriorities compare_priorities;
 };
 
 
+/*----------------------------------------------------------------------
+                             Static helper functions
+ ----------------------------------------------------------------------*/
+
+
+static int findSpecificElement(PriorityQueue queue, PQElement element) 
+{
+    assert(queue != NULL);
+
+    int max_priority_index = -1, j = 0;
+
+    for (j; j < queue->size; ++j) 
+    {
+        if(queue->compare_elements(queue->elements[j], element) == 0)
+        {
+            max_priority_index = j;
+        }
+    }
+
+    for (j; j < queue->size; ++j) 
+    {
+        if (queue->compare_elements(queue->elements[j], element) == 0) 
+        {
+            if(queue->compare_priorities(queue->priorities[j], queue->priorities[max_priority_index]) > 0)
+                max_priority_index = j;
+        }
+    }
+
+    if(max_priority_index == -1){
+    return PQ_ELEMENT_DOES_NOT_EXISTS;
+    }
+
+    return max_priority_index;
+}
+
+
+static int findHighestPriorityElement(PriorityQueue queue)//Made this for you so you can use it in pqRemove, improve it if you want. 
+{
+    assert(queue != NULL);
+
+    int max_priority_index = 0;
+
+    for (int i = 1; i < queue->size; ++i) 
+    {
+        if(queue->compare_priorities(queue->priorities[i], queue->priorities[max_priority_index]) > 0)
+        {
+            max_priority_index = i;
+        }
+    }
+
+    return max_priority_index;
+}
+
+/*----------------------------------------------------------------------
+                             Creation functions
+ ----------------------------------------------------------------------*/
+
+
 PriorityQueue pqCreate(CopyPQElement copy_element,
                        FreePQElement free_element,
                        EqualPQElements equal_elements,
@@ -40,41 +104,121 @@ PriorityQueue pqCreate(CopyPQElement copy_element,
            compare_priorities != NULL);
 
 
-    PriorityQueue priority_queue = malloc (sizeof(*priority_queue));
-    if (priority_queue == NULL)
+    PriorityQueue queue = malloc (sizeof(*queue));
+    if (queue == NULL)
     {
         return NULL;
     }
 
 
-    priority_queue->elements = malloc(INITIAL_SIZE * sizeof(PQElement));
-    if(priority_queue->elements == NULL)
+    queue->elements = malloc(INITIAL_SIZE * sizeof(PQElement));
+    if(queue->elements == NULL)
     {
-        free(priority_queue);
+        free(queue);
         return NULL;
     }
 
 
-    priority_queue->priorities = malloc(INITIAL_SIZE * sizeof(PQElementPriority));
-    if(priority_queue->priorities == NULL)
+    queue->priorities = malloc(INITIAL_SIZE * sizeof(PQElementPriority));
+    if(queue->priorities == NULL)
     {
-        pqDestroy(priority_queue);
+        pqDestroy(queue);
         return NULL;
     }
 
 
-    priority_queue->size = 0;
-    priority_queue->max_size = INITIAL_SIZE;
-    priority_queue->iterator = 0;
+    queue->size = 0;
+    queue->max_size = INITIAL_SIZE;
+    queue->iterator = 0;
 
 
-    priority_queue->copy_element = copy_element;
-    priority_queue->free_element = free_element;
-    priority_queue->compare_elements = equal_elements;
+    queue->copy_element = copy_element;
+    queue->free_element = free_element;
+    queue->compare_elements = equal_elements;
 
 
-    priority_queue->copy_priority = copy_priority;
-    priority_queue->free_priority = free_priority;
-    priority_queue->compare_priorities = compare_priorities;
+    queue->copy_priority = copy_priority;
+    queue->free_priority = free_priority;
+    queue->compare_priorities = compare_priorities;
 }
 
+
+void pqDestroy (PriorityQueue queue)
+{
+    if(queue == NULL)
+    {
+        return NULL;
+    }
+
+    while(!pqIsEmpty(queue))
+    {
+        pqRemoveElement(queue, pqGetFirst(queue));
+    }
+
+    free(queue->elements);
+    free(queue->priorities);
+    free(queue);
+}
+
+
+/*----------------------------------------------------------------------
+                              Queue operations
+ ----------------------------------------------------------------------*/
+
+
+
+PriorityQueueResult pqRemoveElement (PriorityQueue queue, PQElement element)
+{
+    assert(queue != NULL);
+
+    int index = findSpecificElement(queue, element);
+    if (index == PQ_ELEMENT_DOES_NOT_EXISTS) {
+        return PQ_ERROR;
+    }
+
+    queue->free_element(queue->elements[index]);
+    queue->elements[index] = queue->elements[queue->size - 1];
+
+    queue->free_priority(queue->priorities[index]);
+    queue->priorities[index] = queue->priorities[queue->size - 1];
+
+    queue->size--;
+    queue->iterator = 0;
+
+    return PQ_SUCCESS;
+}
+
+
+int pqGetSize(PriorityQueue queue) {
+    assert(queue != NULL);
+    return queue->size;
+}
+
+
+bool pqIsEmpty(PriorityQueue queue) {
+  return pqGetSize(queue) == 0;
+}
+
+
+/*----------------------------------------------------------------------
+                               Queue iteration
+ ----------------------------------------------------------------------*/
+
+
+PQElement pqGetFirst(PriorityQueue queue) 
+{
+    assert(queue != NULL);
+    queue->iterator = 0;
+    return pqGetNext(queue);
+}
+
+
+PQElement pqGetNext(PriorityQueue queue)
+{
+    assert(queue != NULL);
+    if (queue->iterator >= queue->size) 
+    {
+        return NULL;
+    }
+    return queue->elements[queue->iterator++];
+}
