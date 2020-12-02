@@ -84,6 +84,13 @@ static int findHighestPriorityElement(PriorityQueue queue)//Made this for you so
     return max_priority_index;
 }
 
+
+static bool pqIsEmpty(PriorityQueue queue) 
+{
+  return pqGetSize(queue) == 0;
+}
+
+
 /*----------------------------------------------------------------------
                              Creation functions
  ----------------------------------------------------------------------*/
@@ -147,7 +154,7 @@ void pqDestroy (PriorityQueue queue)
 {
     if(queue == NULL)
     {
-        return NULL;
+        return;
     }
 
     while(!pqIsEmpty(queue))
@@ -189,14 +196,10 @@ PriorityQueueResult pqRemoveElement (PriorityQueue queue, PQElement element)
 }
 
 
-int pqGetSize(PriorityQueue queue) {
-    assert(queue != NULL);
+int pqGetSize(PriorityQueue queue) 
+{
+    assert(queue != NULL); 
     return queue->size;
-}
-
-
-bool pqIsEmpty(PriorityQueue queue) {
-  return pqGetSize(queue) == 0;
 }
 
 
