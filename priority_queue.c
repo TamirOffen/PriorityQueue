@@ -11,14 +11,19 @@
 
 #define INITIAL_SIZE 10
 
+typedef struct ElementsStruct {
+    PQElement element;
+    PQElementPriority priority; 
+}Element;                                  
+
+
 struct PriorityQueue_t {
 
-PQElement* elements;
-PQElementPriority* priorities;
+Element* list_of_elements;                 
+Element* iterator;
 
 int size;
 int max_size;
-int iterator;
 
 CopyPQElement copy_element;
 FreePQElement free_element;
@@ -35,8 +40,8 @@ ComparePQElementPriorities compare_priorities;
                              Static helper functions
  ----------------------------------------------------------------------*/
 
-
-static int findSpecificElement(PriorityQueue queue, PQElement element) 
+//Returns the index of the same element as the recieved element with the highest priority.
+static int findSpecificElement(PriorityQueue queue, PQElement element)
 {
     assert(queue != NULL);
 
@@ -66,8 +71,8 @@ static int findSpecificElement(PriorityQueue queue, PQElement element)
     return max_priority_index;
 }
 
-
-static int findHighestPriorityElement(PriorityQueue queue)//Made this for you so you can use it in pqRemove, improve it if you want. 
+//Returns the index of the highest priority element.
+static int findHighestPriorityElement(PriorityQueue queue) 
 {
     assert(queue != NULL);
 
@@ -117,13 +122,9 @@ PriorityQueue pqCreate(CopyPQElement copy_element,
         return NULL;
     }
 
-
-    queue->elements = malloc(INITIAL_SIZE * sizeof(PQElement));
-    if(queue->elements == NULL)
-    {
-        free(queue);
-        return NULL;
-    }
+    //Add allocate elements struct
+    queue->list_of_elements = malloc(INITIAL_SIZE * sizeof(Element));
+    
 
 
     queue->priorities = malloc(INITIAL_SIZE * sizeof(PQElementPriority));
@@ -132,12 +133,13 @@ PriorityQueue pqCreate(CopyPQElement copy_element,
         pqDestroy(queue);
         return NULL;
     }
-
+    //
 
     queue->size = 0;
     queue->max_size = INITIAL_SIZE;
+    //NULL
     queue->iterator = 0;
-
+    //
 
     queue->copy_element = copy_element;
     queue->free_element = free_element;
@@ -162,6 +164,7 @@ void pqDestroy (PriorityQueue queue)
         pqRemoveElement(queue, pqGetFirst(queue));
     }
 
+    //add free elements struct func instead
     free(queue->elements);
     free(queue->priorities);
     free(queue);
@@ -212,7 +215,7 @@ PQElement pqGetFirst(PriorityQueue queue)
 {
     assert(queue != NULL);
     queue->iterator = 0;
-    return pqGetNext(queue);
+    return (queue->elements[findHighestPriorityElement(queue)]);
 }
 
 
