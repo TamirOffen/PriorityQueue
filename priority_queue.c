@@ -247,6 +247,8 @@ PriorityQueue pqCreate(CopyPQElement copy_element,
     queue->copy_priority = copy_priority;
     queue->free_priority = free_priority;
     queue->compare_priorities = compare_priorities;
+
+    return queue;
 }
 
 // void pqDestroy (PriorityQueue queue) {
@@ -267,9 +269,9 @@ PriorityQueue pqCreate(CopyPQElement copy_element,
 
 
 // 
-PriorityQueue pqCopy(PriorityQueue queue) {
+// PriorityQueue pqCopy(PriorityQueue queue) {
 
-}
+// }
 
 
 /*----------------------------------------------------------------------
