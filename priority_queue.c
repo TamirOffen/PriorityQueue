@@ -25,7 +25,7 @@ typedef struct ElementsStruct {
 
 struct PriorityQueue_t {
     Element* list_of_elements;                 
-    Element* iterator; //changed to a pointer @NabeehAS
+    Element* iterator; 
 
     int size; //number of elements in list_of_elements
     int max_size; //size of list_of_elements
@@ -219,22 +219,6 @@ PriorityQueue pqCreate(CopyPQElement copy_element,
         free(queue);
         return NULL;
     }
-
-// not needed to init the first element of the queue
-    // queue->list_of_elements[0].element = malloc(sizeof(PQElement));
-    // if(queue->list_of_elements[0].element == NULL) {
-    //     free(queue->list_of_elements);
-    //     free(queue);
-    //     return NULL;
-    // }
-
-    // queue->list_of_elements[0].priority = malloc(sizeof(PQElementPriority));
-    // if(queue->list_of_elements[0].priority == NULL) {
-    //     free(queue->list_of_elements[0].element);
-    //     free(queue->list_of_elements);
-    //     free(queue);
-    //     return NULL;
-    // }
  
     queue->size = 0;
     queue->max_size = INITIAL_SIZE;
@@ -251,27 +235,21 @@ PriorityQueue pqCreate(CopyPQElement copy_element,
     return queue;
 }
 
-// void pqDestroy (PriorityQueue queue) {
-//     if(queue == NULL) {
-//         return;
-//     }
+void pqDestroy (PriorityQueue queue) {
+    if(queue == NULL) {
+        return;
+    }
 
-//     while(!pqIsEmpty(queue))
-//     {
-//         pqRemoveElement(queue, pqGetFirst(queue));
-//     }
+    // first free the elements inside of the "list_of_elements" 
+    while(!pqIsEmpty(queue)) {
+        pqRemove(queue);
+    }
     
-//     //add free elements struct func instead
-//     free(queue->list_of_elements);
-//     free(queue->iterator);
-//     free(queue);
-// }
+    free(queue->list_of_elements);
+    free(queue->iterator);
+    free(queue);
+}
 
-
-// 
-// PriorityQueue pqCopy(PriorityQueue queue) {
-
-// }
 
 
 /*----------------------------------------------------------------------
@@ -312,26 +290,28 @@ PriorityQueueResult pqInsert(PriorityQueue queue, PQElement element, PQElementPr
 }
 
 
-// PriorityQueueResult pqRemoveElement (PriorityQueue queue, PQElement element)
-// {
-//     assert(queue != NULL);
+PriorityQueueResult pqRemove(PriorityQueue queue) {
+    if(queue == NULL) {
+        return PQ_NULL_ARGUMENT;
+    }
 
-//     int index = findSpecificElement(queue, element);
-//     if (index == PQ_ELEMENT_DOES_NOT_EXISTS) {
-//         return PQ_ERROR;
-//     }
+    int highest_priority_element_index = findHighestPriorityElementIndex(queue);
 
-//     queue->free_element(queue->elements[index]);
-//     queue->elements[index] = queue->elements[queue->size - 1];
+    // freeing the memory inside Element (both element and priority)
+    queue->free_element(queue->list_of_elements[highest_priority_element_index].element);
+    queue->free_priority(queue->list_of_elements[highest_priority_element_index].priority);
 
-//     queue->free_priority(queue->priorities[index]);
-//     queue->priorities[index] = queue->priorities[queue->size - 1];
+    // moving over the elements after highest_piority_element_index
+    queue->list_of_elements[highest_priority_element_index] = queue->list_of_elements[queue->size - 1];
 
-//     queue->size--;
-//     queue->iterator = 0;
+    queue->size--;
+    //todo: check to reduce size! will only help with memory but i dont think its worth spending the time on it
 
-//     return PQ_SUCCESS;
-// }
+    // iterator is undefined after pqRemove
+    queue->iterator = NULL; 
+
+    return PQ_SUCCESS;
+}
 
 
 int pqGetSize(PriorityQueue queue) {
