@@ -426,6 +426,7 @@ PriorityQueueResult pqRemove(PriorityQueue queue) {
 
     // iterator is undefined after pqRemove
     queue->iterator = NULL; 
+    clearIterator(queue);
 
     return PQ_SUCCESS;
 }

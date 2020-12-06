@@ -46,15 +46,16 @@ int main() {
     PQ_FOREACH(int*, currentNumber, pq) {
         printf("%d\n", *currentNumber);
     }
+    printf("\n");
 
-    PriorityQueue pq2 = pqCopy(pq);
-
-    PQ_FOREACH(int*, i, pq2){
-        printf("%d\n", *i);
+    pqRemove(pq);
+    PQ_FOREACH(int*, currentNumber, pq) {
+        printf("%d\n", *currentNumber);
     }
+    
 
     pqDestroy(pq);
-    pqDestroy(pq2);
+
 
     return 0;
 }
