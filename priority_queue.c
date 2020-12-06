@@ -1,8 +1,8 @@
+#include "priority_queue.h"
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
-#include "priority_queue.h"
-
+#include <stdbool.h>
 
 /*----------------------------------------------------------------------
                          Implementation constants
@@ -21,6 +21,7 @@
 typedef struct ElementsStruct {
     PQElement element;
     PQElementPriority priority; 
+    bool used; //when the iterator has pointed to this Element, used will be set to true
 } Element;                                  
 
 struct PriorityQueue_t {
@@ -103,6 +104,87 @@ static int findHighestPriorityElementIndex(const PriorityQueue queue) {
 
     return ELEMENT_NOT_FOUND;
 }
+
+// sets the iterator to be in an undefined state
+static void clearIterator(PriorityQueue queue) {
+    assert(queue != NULL);
+    for(int index = 0; index < queue->size; index++) {
+        queue->list_of_elements[index].used = false;
+    }
+}
+
+// takes into account used (aka iterator)
+// returns NULL if queue is empty or if iterator has already iterated over all of the elements in queue
+static PQElementPriority getNextHighestPriority(const PriorityQueue queue) {
+    assert(queue != NULL);
+
+    // queue is empty, therefore there is no element with 
+    // highest priority because there are no elements in queue
+    if(pqIsEmpty(queue)) {
+        return NULL;
+    }
+
+    PQElementPriority highest_priority = NULL;
+    for(int i = 0; i < queue->size; i++) {
+        if(queue->list_of_elements[i].used == false) {
+            highest_priority = queue->list_of_elements[i].priority;
+            // printf("in getting highest priority: %d\n", queue->list_of_elements[i].used);
+            break;
+        }
+    }
+
+    // the iterator has iterated over all of the elements in the queue
+    if(highest_priority == NULL) {
+        return NULL;
+    }
+
+    for(int index = 0; index < queue->size; index++) {
+        //if the iterator already looked at this element in list_of_elements
+        if(queue->list_of_elements[index].used == true) {
+            continue;
+        }
+
+        PQElementPriority current_element_priority = queue->list_of_elements[index].priority;
+
+        // the compare_priorities function returns a positive number if 
+        // current_element_priority is greater than highest_priority
+        if(queue->compare_priorities(current_element_priority, highest_priority) > 0) {
+            highest_priority = current_element_priority;
+        }
+    }
+    // at the end of this for loop, highest_priority will be set to the highest priority in "list_of_elements"
+
+    return highest_priority;
+}
+
+// returns the index in "list_of_elements" of the next highest priority element
+// NOTE: takes into account what the iterator has already looked at, aka used = true;
+static int getNextHighestPriorityElementIndex(PriorityQueue queue) {
+    assert(queue != NULL);
+
+    // gets the highest priority in queue
+    PQElementPriority highest_priority = getNextHighestPriority(queue); 
+
+    // if highest_priority = NULL, than the iteator has iterated over all of the elements in queue
+    if(highest_priority == NULL) {
+        return ELEMENT_NOT_FOUND;
+    }
+
+    for(int index = 0; index < queue->size; index++) {
+        //if the iterator has already looked into this element in list_of_elements
+        if(queue->list_of_elements[index].used == true) {
+            continue;
+        }
+
+        // the compare_priorities() func returns 0 when the two inputted priorities are equal
+        if(queue->compare_priorities(queue->list_of_elements[index].priority, highest_priority) == 0) {
+            return index;
+        }
+    }
+
+    return ELEMENT_NOT_FOUND;   
+}
+
 
 // // frees the memory used by queue->list_of_elements
 // static void destroyListOfElementsInQueue(PriorityQueue queue) {
@@ -286,6 +368,8 @@ PriorityQueueResult pqInsert(PriorityQueue queue, PQElement element, PQElementPr
 
     queue->size++;
 
+    clearIterator(queue);
+
     return PQ_SUCCESS;
 }
 
@@ -334,18 +418,37 @@ PQElement pqGetFirst(PriorityQueue queue)
     int highest_priority_element_index = findHighestPriorityElementIndex(queue);
     Element highest_priority_element = queue->list_of_elements[highest_priority_element_index];
 
-    queue->iterator = &highest_priority_element;
+    queue->list_of_elements[highest_priority_element_index].used = true;
+    queue->iterator = &highest_priority_element; // Not needed!
+    // printf("%d %d %d \n", queue->list_of_elements[0].used, queue->list_of_elements[1].used ,queue->list_of_elements[2].used);
 
     return highest_priority_element.element;
 }
 
 
-// PQElement pqGetNext(PriorityQueue queue)
-// {
-//     assert(queue != NULL);
-//     if (queue->iterator >= queue->size) 
-//     {
-//         return NULL;
-//     }
-//     return queue->elements[queue->iterator++];
-// }
+PQElement pqGetNext(PriorityQueue queue) {
+    
+    if(queue == NULL || queue->iterator == NULL) {
+        return NULL;
+    }
+
+    int next_highest_priority_element_index = getNextHighestPriorityElementIndex(queue);
+    // printf("%d\n", next_highest_priority_element_index);
+    if(next_highest_priority_element_index == ELEMENT_NOT_FOUND) {
+        return NULL; //reached the end of the queue
+    }
+
+    // printf("%d %d %d \n", queue->list_of_elements[0].used, queue->list_of_elements[1].used ,queue->list_of_elements[2].used);
+
+    Element next_highest_priority_element = queue->list_of_elements[next_highest_priority_element_index];
+
+    queue->list_of_elements[next_highest_priority_element_index].used = true;
+    queue->iterator = &next_highest_priority_element; // not needed!
+    
+    return next_highest_priority_element.element;
+}
+
+
+
+
+
