@@ -47,7 +47,14 @@ int main() {
         printf("%d\n", *currentNumber);
     }
 
+    PriorityQueue pq2 = pqCopy(pq);
+
+    PQ_FOREACH(int*, i, pq2){
+        printf("%d\n", *i);
+    }
+
     pqDestroy(pq);
+    pqDestroy(pq2);
 
     return 0;
 }

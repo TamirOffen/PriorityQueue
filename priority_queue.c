@@ -332,6 +332,39 @@ void pqDestroy (PriorityQueue queue) {
     free(queue);
 }
 
+PriorityQueue pqCopy(PriorityQueue queue)
+{
+    PriorityQueue queue_copy = malloc(sizeof(*queue_copy));
+    if (queue_copy == NULL){
+        return NULL;
+    }
+
+    queue_copy->list_of_elements = malloc (queue->size * sizeof(Element));
+    if(queue_copy->list_of_elements == NULL){
+        free(queue_copy);
+        return NULL;
+    }
+
+    queue_copy->size = queue->size;
+    queue_copy->max_size = queue->max_size;
+    queue_copy->iterator = NULL;
+    queue->iterator = NULL;
+
+    queue_copy->copy_element = queue->copy_element;
+    queue_copy->free_element = queue->free_element;
+    queue_copy->compare_elements = queue->compare_elements;
+
+    queue_copy->copy_priority = queue->copy_priority;
+    queue_copy->free_priority = queue->free_priority;
+    queue_copy->compare_priorities = queue->compare_priorities;
+
+    for(int i = 0; i < queue_copy->size; i++){
+        pqInsert(queue_copy, queue->list_of_elements[i].element, queue->list_of_elements[i].priority);
+    }
+    return queue_copy;
+
+}
+
 
 
 /*----------------------------------------------------------------------
