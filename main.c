@@ -33,25 +33,29 @@ int main() {
     int one = 1, two = 2, three = 3;
     int onePriority = 11, twoPriority = 10, threePriority = 5;
    
-    pqInsert(pq, &one, &onePriority);
-    pqInsert(pq, &two, &twoPriority);  
+    for(int i = 0; i < 20; i++) {
+        pqInsert(pq, &one, &onePriority);
+    }
+    pqInsert(pq, &two, &twoPriority);
     pqInsert(pq, &three, &threePriority);
     
-    PQ_FOREACH(int*, currentNumber, pq) {
-        printf("%d\n", *currentNumber);
+    PQ_FOREACH(int*, i, pq) {
+        printf("%d\n", *i);
     }
     printf("\n");
+    
+    for(int i = 0; i < 20; i++) {
+        pqRemove(pq);
+    }
+    pqRemove(pq);
+    pqRemove(pq);
 
-    PriorityQueue pq2 = pqCopy(pq);
-    pqRemove(pq2);
-    PQ_FOREACH(int*, currentNumber, pq2) {
-        printf("%d\n", *currentNumber);
+    PQ_FOREACH(int*, i, pq) {
+        printf("%d\n", *i);
     }
-    printf("\n");
     
 
     pqDestroy(pq);
-    pqDestroy(pq2);
 
 
     return 0;

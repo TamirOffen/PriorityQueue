@@ -185,87 +185,29 @@ static int getNextHighestPriorityElementIndex(PriorityQueue queue) {
     return ELEMENT_NOT_FOUND;   
 }
 
+/**
+ * @brief expands the queue's internal array (list_of_elements) so it can store more elements
+ * 
+ * @return PriorityQueueResult :
+ *         PQ_SUCCESS if the expansion was succesful
+ *         PQ_OUT_OF_MEMORY if there was not enough memory
+ */
+static PriorityQueueResult expand(PriorityQueue queue) {
+    assert(queue != NULL); //Not needed, i think ?
 
-// // frees the memory used by queue->list_of_elements
-// static void destroyListOfElementsInQueue(PriorityQueue queue) {
-//     //TODO:
-// }
+    int newSize = queue->max_size * EXPAND_RATE;
 
-// /**
-//  * @brief expands the queue's internal array (list_of_elements) so it can store more elements
-//  * 
-//  * @return PriorityQueueResult :
-//  *         PQ_SUCCESS if the expansion was succesful
-//  *         PQ_OUT_OF_MEMORY if there was not enough memory
-//  */
-// static PriorityQueueResult expand(PriorityQueue queue) {
-//     assert(queue != NULL); //Not needed, i think ?
+    //TODO: check if realloc frees the memory if no succesful
+    Element* new_list_of_elements = realloc(queue->list_of_elements, newSize * sizeof(Element));
+    if(new_list_of_elements == NULL) {
+            return PQ_OUT_OF_MEMORY;
+    }
 
-//     int newSize = queue->max_size * EXPAND_RATE;
-//     Element* new_list_of_elements = malloc(sizeof(Element) * newSize);
-//     if(new_list_of_elements == NULL) {
-//         return PQ_OUT_OF_MEMORY;
-//     }
+    queue->list_of_elements = new_list_of_elements;
+    queue->max_size = newSize;
 
-//     for(int index = 0; index < queue->max_size; index++) {
-//         new_list_of_elements[index].element = malloc(sizeof(PQElement));
-//         if(new_list_of_elements[index].element == NULL) {
-//             free(new_list_of_elements[index].element);
-//             free(new_list_of_elements);
-//             return PQ_OUT_OF_MEMORY;
-//         }
-
-//         new_list_of_elements[index].priority = malloc(sizeof(PQElementPriority));
-//         if(new_list_of_elements[index].priority == NULL) {
-//             free(new_list_of_elements[index].element);
-//             free(new_list_of_elements[index].priority);
-//             free(new_list_of_elements);
-//             return PQ_OUT_OF_MEMORY;
-//         }
-
-//         Element current_element = queue->list_of_elements[index];
-//         new_list_of_elements[index].element = current_element.element;
-//         new_list_of_elements[index].priority = current_element.priority;
-//     }
-//     // after this point, all of the new memory needed has been succesfully allocated 
-//     // and therefore the old list_of_elements can be destroyed
-//     destroyListOfElementsInQueue(queue);
-
-//     queue->list_of_elements = new_list_of_elements;
-//     queue->max_size = newSize;
-
-//     return PQ_SUCCESS;
-// }
-
-// Returns the index of the same element as the recieved element with the highest priority.
-// static int findSpecificElement(PriorityQueue queue, PQElement element) {
-//     assert(queue != NULL);
-
-//     int max_priority_index = -1, j = 0;
-
-//     for (j; j < queue->size; ++j) 
-//     {
-//         if(queue->compare_elements(queue->elements[j], element) == 0)
-//         {
-//             max_priority_index = j;
-//         }
-//     }
-
-//     for (j; j < queue->size; ++j) 
-//     {
-//         if (queue->compare_elements(queue->elements[j], element) == 0) 
-//         {
-//             if(queue->compare_priorities(queue->priorities[j], queue->priorities[max_priority_index]) > 0)
-//                 max_priority_index = j;
-//         }
-//     }
-
-//     if(max_priority_index == -1){
-//         return ELEMENT_NOT_FOUND;
-//     }
-
-//     return max_priority_index;
-// }
+    return PQ_SUCCESS;
+}
 
 
 /*----------------------------------------------------------------------
@@ -360,6 +302,7 @@ PriorityQueue pqCopy(PriorityQueue queue) {
     newQueue->compare_priorities = queue->compare_priorities;
 
     for(int i = 0; i < queue->size; i++) {
+        // how to test??
         if(pqInsert(newQueue, queue->list_of_elements[i].element, queue->list_of_elements[i].priority) == PQ_OUT_OF_MEMORY) {
             pqDestroy(newQueue);
             return NULL;
@@ -383,7 +326,9 @@ PriorityQueueResult pqInsert(PriorityQueue queue, PQElement element, PQElementPr
 
     // the list_of_elements array has reached its max size, therefore we need to expand its size
     if(queue->size == queue->max_size) {
-        //TODO: expand()
+        if(expand(queue) == PQ_OUT_OF_MEMORY) {
+            return PQ_OUT_OF_MEMORY;
+        }
     }
 
     // the index of the element that wants to be inserted into the queue
