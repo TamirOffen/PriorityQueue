@@ -26,7 +26,7 @@ typedef struct ElementsStruct {
 
 struct PriorityQueue_t {
     Element* list_of_elements;                 
-    Element* iterator; 
+    // Element* iterator; 
 
     int size; //number of elements in list_of_elements
     int max_size; //size of list_of_elements
@@ -304,7 +304,7 @@ PriorityQueue pqCreate(CopyPQElement copy_element,
  
     queue->size = 0;
     queue->max_size = INITIAL_SIZE;
-    queue->iterator = NULL;
+    // queue->iterator = NULL;
     
     queue->copy_element = copy_element;
     queue->free_element = free_element;
@@ -328,41 +328,45 @@ void pqDestroy (PriorityQueue queue) {
     }
     
     free(queue->list_of_elements);
-    free(queue->iterator);
+    // free(queue->iterator);
     free(queue);
 }
 
-PriorityQueue pqCopy(PriorityQueue queue)
-{
-    PriorityQueue queue_copy = malloc(sizeof(*queue_copy));
-    if (queue_copy == NULL){
+PriorityQueue pqCopy(PriorityQueue queue) {
+    if(queue == NULL) {
         return NULL;
     }
 
-    queue_copy->list_of_elements = malloc (queue->size * sizeof(Element));
-    if(queue_copy->list_of_elements == NULL){
-        free(queue_copy);
+    PriorityQueue newQueue = malloc(sizeof(*newQueue));
+    if(newQueue == NULL) {
         return NULL;
     }
 
-    queue_copy->size = queue->size;
-    queue_copy->max_size = queue->max_size;
-    queue_copy->iterator = NULL;
-    queue->iterator = NULL;
-
-    queue_copy->copy_element = queue->copy_element;
-    queue_copy->free_element = queue->free_element;
-    queue_copy->compare_elements = queue->compare_elements;
-
-    queue_copy->copy_priority = queue->copy_priority;
-    queue_copy->free_priority = queue->free_priority;
-    queue_copy->compare_priorities = queue->compare_priorities;
-
-    for(int i = 0; i < queue_copy->size; i++){
-        pqInsert(queue_copy, queue->list_of_elements[i].element, queue->list_of_elements[i].priority);
+    newQueue->list_of_elements = malloc(queue->max_size * sizeof(Element));
+    if(newQueue->list_of_elements == NULL) {
+        free(newQueue);
+        return NULL;
     }
-    return queue_copy;
 
+    // newQueue->size = queue->size;
+    newQueue->max_size = queue->max_size;
+
+    newQueue->copy_element = queue->copy_element;
+    newQueue->free_element = queue->free_element;
+    newQueue->compare_elements = queue->compare_elements;
+
+    newQueue->copy_priority = queue->copy_priority;
+    newQueue->free_priority = queue->free_priority;
+    newQueue->compare_priorities = queue->compare_priorities;
+
+    for(int i = 0; i < queue->size; i++) {
+        if(pqInsert(newQueue, queue->list_of_elements[i].element, queue->list_of_elements[i].priority) == PQ_OUT_OF_MEMORY) {
+            pqDestroy(newQueue);
+            return NULL;
+        }
+    }
+
+    return newQueue;
 }
 
 
@@ -425,7 +429,7 @@ PriorityQueueResult pqRemove(PriorityQueue queue) {
     //todo: check to reduce size! will only help with memory but i dont think its worth spending the time on it
 
     // iterator is undefined after pqRemove
-    queue->iterator = NULL; 
+    // queue->iterator = NULL; 
     clearIterator(queue);
 
     return PQ_SUCCESS;
@@ -453,16 +457,27 @@ PQElement pqGetFirst(PriorityQueue queue)
     Element highest_priority_element = queue->list_of_elements[highest_priority_element_index];
 
     queue->list_of_elements[highest_priority_element_index].used = true;
-    queue->iterator = &highest_priority_element; // Not needed!
+    // queue->iterator = &highest_priority_element; // Not needed!
     // printf("%d %d %d \n", queue->list_of_elements[0].used, queue->list_of_elements[1].used ,queue->list_of_elements[2].used);
 
     return highest_priority_element.element;
 }
 
+// the "iterator" is defined when pqGetFirst has been called.
+// this means that if pqGetFirst has been called, 
+// than atleast one element in "list_of_elements" has used = true
+static bool iteratorIsDefined(PriorityQueue queue) {
+    for(int i = 0; i < queue->size; i++) {
+        if(queue->list_of_elements[i].used == true) {
+            return true;
+        }
+    }
+    return false;
+}
 
 PQElement pqGetNext(PriorityQueue queue) {
     
-    if(queue == NULL || queue->iterator == NULL) {
+    if(queue == NULL || !iteratorIsDefined(queue)) {
         return NULL;
     }
 
@@ -477,7 +492,7 @@ PQElement pqGetNext(PriorityQueue queue) {
     Element next_highest_priority_element = queue->list_of_elements[next_highest_priority_element_index];
 
     queue->list_of_elements[next_highest_priority_element_index].used = true;
-    queue->iterator = &next_highest_priority_element; // not needed!
+    // queue->iterator = &next_highest_priority_element; // not needed!
     
     return next_highest_priority_element.element;
 }
