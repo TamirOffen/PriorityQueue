@@ -90,7 +90,7 @@ static int findHighestPriorityElementIndex(const PriorityQueue queue) {
     assert(queue != NULL);
 
     // gets the highest priority in queue
-    PQElementPriority highest_priority = findHighestPriorityInQueue(queue); //TODO: might need to use copyPriority
+    PQElementPriority highest_priority = findHighestPriorityInQueue(queue); 
     if(highest_priority == NULL) {
         return ELEMENT_NOT_FOUND;
     }
@@ -374,21 +374,44 @@ PriorityQueueResult pqInsert(PriorityQueue queue, PQElement element, PQElementPr
     return PQ_SUCCESS;
 }
 
-//TODO:
+
+//TODO: freeing errors
 PriorityQueueResult pqChangePriority(PriorityQueue queue, PQElement element,
                                      PQElementPriority old_priority, PQElementPriority new_priority) {
     if(queue == NULL || element == NULL || old_priority == NULL || new_priority == NULL) {
         return PQ_NULL_ARGUMENT;
     }    
 
+    bool element_found = false;
+    for(int i = 0; i < queue->size; i++) {
+        if(queue->compare_elements(queue->list_of_elements[i].element, element)) {
+            if(queue->compare_priorities(queue->list_of_elements[i].priority, old_priority) == 0) {
+                element_found = true;
 
+                // free element and priority in Element
+                queue->free_element(queue->list_of_elements[i].element); //ERRORS HERE
+                queue->free_priority(queue->list_of_elements[i].priority);
 
+                // TODO: move elements back into the "i" index
+                // queue->list_of_elements[i] = queue->list_of_elements[i+1];
+                
+                queue->size--;
+                break;
+            }
+        }
+    }
 
+    if(!element_found) {
+        return PQ_ELEMENT_DOES_NOT_EXISTS;
+    }
+
+    pqInsert(queue, element, new_priority);
 
     clearIterator(queue);
     return PQ_SUCCESS;
 
 }
+
 
 PriorityQueueResult pqRemove(PriorityQueue queue) {
     if(queue == NULL) {
@@ -408,7 +431,6 @@ PriorityQueueResult pqRemove(PriorityQueue queue) {
     //todo: check to reduce size! will only help with memory but i dont think its worth spending the time on it
 
     // iterator is undefined after pqRemove
-    // queue->iterator = NULL; 
     clearIterator(queue);
 
     return PQ_SUCCESS;

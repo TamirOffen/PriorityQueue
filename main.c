@@ -31,32 +31,24 @@ int main() {
     PriorityQueue pq = pqCreate(copyIntGeneric, freeIntGeneric, equalIntsGeneric, copyIntGeneric, freeIntGeneric, compareIntsGeneric);
 
     int one = 1, two = 2, three = 3;
-    int onePriority = 11, twoPriority = 10, threePriority = 5;
+    int onePriority = 9, twoPriority = 10, threePriority = 5;
    
-    for(int i = 0; i < 20; i++) {
-        pqInsert(pq, &one, &onePriority);
-    }
-    pqInsert(pq, &two, &twoPriority);
-    pqInsert(pq, &three, &threePriority);
-
-    printf("element found: %d\n", pqContains(pq, &one));
     
+    pqInsert(pq, &two, &twoPriority);
+    pqInsert(pq, &one, &onePriority);
+    pqInsert(pq, &three, &threePriority);
     PQ_FOREACH(int*, i, pq) {
         printf("%d\n", *i);
     }
     printf("\n");
-    
-    pqClear(pq);
-    pqInsert(pq, &two, &twoPriority);
-    pqInsert(pq, &three, &threePriority);
 
-    printf("element found: %d\n", pqContains(pq, &one));
+    int highPriority = 1000;
+    pqChangePriority(pq, &one, &onePriority, &highPriority);
+   
     PQ_FOREACH(int*, i, pq) {
         printf("%d\n", *i);
     }
-
-    pqInsert(pq, &one, &onePriority);
-    printf("element found: %d\n", pqContains(pq, &one));
+    
 
     pqDestroy(pq);
 
