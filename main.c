@@ -38,22 +38,25 @@ int main() {
     }
     pqInsert(pq, &two, &twoPriority);
     pqInsert(pq, &three, &threePriority);
+
+    printf("element found: %d\n", pqContains(pq, &one));
     
     PQ_FOREACH(int*, i, pq) {
         printf("%d\n", *i);
     }
     printf("\n");
     
-    for(int i = 0; i < 20; i++) {
-        pqRemove(pq);
-    }
-    pqRemove(pq);
-    pqRemove(pq);
+    pqClear(pq);
+    pqInsert(pq, &two, &twoPriority);
+    pqInsert(pq, &three, &threePriority);
 
+    printf("element found: %d\n", pqContains(pq, &one));
     PQ_FOREACH(int*, i, pq) {
         printf("%d\n", *i);
     }
-    
+
+    pqInsert(pq, &one, &onePriority);
+    printf("element found: %d\n", pqContains(pq, &one));
 
     pqDestroy(pq);
 

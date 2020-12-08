@@ -319,6 +319,25 @@ PriorityQueue pqCopy(PriorityQueue queue) {
  ----------------------------------------------------------------------*/
 
 
+int pqGetSize(PriorityQueue queue) {
+    assert(queue != NULL); 
+    return queue->size;
+}
+
+bool pqContains(PriorityQueue queue, PQElement element) {
+    if(queue == NULL || element == NULL) {
+        return NULL;
+    }
+
+    for(int i = 0; i < queue->size; i++) {
+        if(queue->compare_elements(queue->list_of_elements[i].element, element)) {
+            return true; //matching element found
+        }
+    }
+
+    return false; //element was not found
+}
+
 PriorityQueueResult pqInsert(PriorityQueue queue, PQElement element, PQElementPriority priority) {
     if(queue == NULL || element == NULL || priority == NULL) {
         return PQ_NULL_ARGUMENT;
@@ -355,6 +374,21 @@ PriorityQueueResult pqInsert(PriorityQueue queue, PQElement element, PQElementPr
     return PQ_SUCCESS;
 }
 
+//TODO:
+PriorityQueueResult pqChangePriority(PriorityQueue queue, PQElement element,
+                                     PQElementPriority old_priority, PQElementPriority new_priority) {
+    if(queue == NULL || element == NULL || old_priority == NULL || new_priority == NULL) {
+        return PQ_NULL_ARGUMENT;
+    }    
+
+
+
+
+
+    clearIterator(queue);
+    return PQ_SUCCESS;
+
+}
 
 PriorityQueueResult pqRemove(PriorityQueue queue) {
     if(queue == NULL) {
@@ -381,16 +415,9 @@ PriorityQueueResult pqRemove(PriorityQueue queue) {
 }
 
 
-int pqGetSize(PriorityQueue queue) {
-    assert(queue != NULL); 
-    return queue->size;
-}
-
-
 // /*----------------------------------------------------------------------
 //                                Queue iteration
 //  ----------------------------------------------------------------------*/
-
 
 PQElement pqGetFirst(PriorityQueue queue) 
 {
@@ -442,6 +469,20 @@ PQElement pqGetNext(PriorityQueue queue) {
     return next_highest_priority_element.element;
 }
 
+
+PriorityQueueResult pqClear(PriorityQueue queue) {
+    if(queue == NULL) {
+        return PQ_NULL_ARGUMENT;
+    }
+
+    while(!pqIsEmpty(queue)) {
+        pqRemove(queue);
+    }
+
+    clearIterator(queue);
+
+    return PQ_SUCCESS;
+}
 
 
 
