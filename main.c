@@ -15,7 +15,10 @@ static PQElementPriority copyIntGeneric(PQElementPriority n) {
 }
 
 static void freeIntGeneric(PQElementPriority n) {
-    free(n);
+    if (n != NULL) {
+      free(n);
+    }
+    n = NULL;
 }
 
 static int compareIntsGeneric(PQElementPriority n1, PQElementPriority n2) {
@@ -42,7 +45,7 @@ int main() {
     }
     printf("\n");
 
-    int highPriority = 1000;
+    int highPriority = 1;
     pqChangePriority(pq, &one, &onePriority, &highPriority);
    
     PQ_FOREACH(int*, i, pq) {

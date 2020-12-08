@@ -393,7 +393,7 @@ PriorityQueueResult pqChangePriority(PriorityQueue queue, PQElement element,
                 queue->free_priority(queue->list_of_elements[i].priority);
 
                 // TODO: move elements back into the "i" index
-                // queue->list_of_elements[i] = queue->list_of_elements[i+1];
+                queue->list_of_elements[i] = queue->list_of_elements[i+1];
                 
                 queue->size--;
                 break;
