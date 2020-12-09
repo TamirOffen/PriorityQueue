@@ -375,7 +375,18 @@ PriorityQueueResult pqInsert(PriorityQueue queue, PQElement element, PQElementPr
 }
 
 
-//TODO: freeing errors
+static void moveElementsLeft(PriorityQueue queue, int index) {
+
+    for(int i = index; i < queue->size-1; i++) {
+        queue->list_of_elements[i] = queue->list_of_elements[i+1];
+    }
+
+    // rafi says they will cause bugs:
+    // queue->free_element(queue->list_of_elements[queue->size].element);
+    // queue->free_priority(queue->list_of_elements[queue->size].priority);
+
+}
+
 PriorityQueueResult pqChangePriority(PriorityQueue queue, PQElement element,
                                      PQElementPriority old_priority, PQElementPriority new_priority) {
     if(queue == NULL || element == NULL || old_priority == NULL || new_priority == NULL) {
@@ -393,8 +404,8 @@ PriorityQueueResult pqChangePriority(PriorityQueue queue, PQElement element,
                 queue->free_priority(queue->list_of_elements[i].priority);
 
                 // TODO: move elements back into the "i" index
-                queue->list_of_elements[i] = queue->list_of_elements[i+1];
-                
+                moveElementsLeft(queue, i);
+
                 queue->size--;
                 break;
             }
@@ -431,6 +442,37 @@ PriorityQueueResult pqRemove(PriorityQueue queue) {
     //todo: check to reduce size! will only help with memory but i dont think its worth spending the time on it
 
     // iterator is undefined after pqRemove
+    clearIterator(queue);
+
+    return PQ_SUCCESS;
+}
+
+PriorityQueueResult pqRemoveElement(PriorityQueue queue, PQElement element) {
+    if(queue == NULL || element == NULL) {
+        return PQ_NULL_ARGUMENT;
+    }
+
+    bool element_found = false;
+    for(int i = 0; i < queue->size; i++) {
+        if(queue->compare_elements(queue->list_of_elements[i].element, element)) {
+            element_found = true;
+
+            // free element and priority in Element
+            queue->free_element(queue->list_of_elements[i].element); //ERRORS HERE
+            queue->free_priority(queue->list_of_elements[i].priority);
+
+            // TODO: move elements back into the "i" index
+            moveElementsLeft(queue, i);
+                
+            queue->size--;
+            break;
+        }
+    }
+
+    if(!element_found) {
+        return PQ_ELEMENT_DOES_NOT_EXISTS;
+    }
+
     clearIterator(queue);
 
     return PQ_SUCCESS;

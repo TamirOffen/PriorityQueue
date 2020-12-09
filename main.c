@@ -15,7 +15,7 @@ static PQElementPriority copyIntGeneric(PQElementPriority n) {
 }
 
 static void freeIntGeneric(PQElementPriority n) {
-    if (n != NULL) {
+ if (n != NULL) {
       free(n);
     }
     n = NULL;
@@ -36,22 +36,32 @@ int main() {
     int one = 1, two = 2, three = 3;
     int onePriority = 9, twoPriority = 10, threePriority = 5;
    
-    
-    pqInsert(pq, &two, &twoPriority);
-    pqInsert(pq, &one, &onePriority);
-    pqInsert(pq, &three, &threePriority);
+    pqInsert(pq, &one, &onePriority);  
+    pqInsert(pq, &one, &onePriority); 
+    pqInsert(pq, &one, &onePriority); 
+    pqInsert(pq, &one, &onePriority); 
+    pqInsert(pq, &two, &twoPriority); 
+    pqInsert(pq, &three, &threePriority); 
+
+    pqRemoveElement(pq, &one);
+
     PQ_FOREACH(int*, i, pq) {
         printf("%d\n", *i);
     }
     printf("\n");
 
-    int highPriority = 1;
+    int highPriority = 100;
     pqChangePriority(pq, &one, &onePriority, &highPriority);
-   
     PQ_FOREACH(int*, i, pq) {
         printf("%d\n", *i);
     }
-    
+    printf("\n");
+
+    pqRemoveElement(pq, &one);
+    PQ_FOREACH(int*, i, pq) {
+        printf("%d\n", *i);
+    }
+    printf("\n");
 
     pqDestroy(pq);
 
