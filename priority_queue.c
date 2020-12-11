@@ -264,13 +264,14 @@ void pqDestroy (PriorityQueue queue) {
         return;
     }
 
+    clearIterator(queue);
+
     // first free the elements inside of the "list_of_elements" 
     while(!pqIsEmpty(queue)) {
         pqRemove(queue);
     }
     
     free(queue->list_of_elements);
-    // free(queue->iterator);
     free(queue);
 }
 
@@ -309,6 +310,9 @@ PriorityQueue pqCopy(PriorityQueue queue) {
         }
     }
 
+    clearIterator(queue);
+    clearIterator(newQueue);
+
     return newQueue;
 }
 
@@ -321,6 +325,9 @@ PriorityQueue pqCopy(PriorityQueue queue) {
 
 int pqGetSize(PriorityQueue queue) {
     assert(queue != NULL); 
+    // if(queue == NULL) {
+    //     return -1;
+    // }
     return queue->size;
 }
 
@@ -429,6 +436,10 @@ PriorityQueueResult pqRemove(PriorityQueue queue) {
         return PQ_NULL_ARGUMENT;
     }
 
+    if(queue->size == 0) {
+        return PQ_SUCCESS;
+    }
+
     int highest_priority_element_index = findHighestPriorityElementIndex(queue);
 
     // freeing the memory inside Element (both element and priority)
@@ -503,6 +514,7 @@ PQElement pqGetFirst(PriorityQueue queue)
 // this means that if pqGetFirst has been called, 
 // than atleast one element in "list_of_elements" has used = true
 static bool iteratorIsDefined(PriorityQueue queue) {
+    if(pqIsEmpty(queue)) return false;
     for(int i = 0; i < queue->size; i++) {
         if(queue->list_of_elements[i].used == true) {
             return true;
