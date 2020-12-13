@@ -293,6 +293,7 @@ PriorityQueue pqCopy(PriorityQueue queue) {
 
     // newQueue->size = queue->size;
     newQueue->max_size = queue->max_size;
+    newQueue->size = 0;
 
     newQueue->copy_element = queue->copy_element;
     newQueue->free_element = queue->free_element;
