@@ -324,10 +324,10 @@ PriorityQueue pqCopy(PriorityQueue queue) {
 
 
 int pqGetSize(PriorityQueue queue) {
-    assert(queue != NULL); 
-    // if(queue == NULL) {
-    //     return -1;
-    // }
+    // assert(queue != NULL); 
+    if(queue == NULL) {
+        return -1;
+    }
     return queue->size;
 }
 

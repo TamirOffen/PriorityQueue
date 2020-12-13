@@ -34,24 +34,6 @@ int main() {
 
     PriorityQueue pq = pqCreate(copyIntGeneric, freeIntGeneric, equalIntsGeneric, copyIntGeneric, freeIntGeneric, compareIntsGeneric);
 
-    int one = 1; //, two = 2, three = 3;
-    int onePriority = 1; // twoPriority = 10, threePriority = 5;
-
-
-    int elem = 5;
-    int elem2 = 4;
-    pqInsert(pq, &one, &onePriority);
-    pqInsert(pq, &elem2, &elem2);
-    pqInsert(pq, &one, &onePriority);
-    pqInsert(pq, &elem2, &elem2);
-
-    if(pqRemoveElement(pq, &elem) == PQ_ELEMENT_DOES_NOT_EXISTS) printf("ok1\n");
-
-
-    pqInsert(pq, &elem, &elem);
-    if(pqRemoveElement(pq, &elem) == PQ_SUCCESS) printf("ok2\n");
-    if(pqRemoveElement(pq, &elem) == PQ_ELEMENT_DOES_NOT_EXISTS) printf("ok3\n");
-
     pqDestroy(pq);
 
     return 0;
