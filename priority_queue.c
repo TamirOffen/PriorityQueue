@@ -246,7 +246,6 @@ PriorityQueue pqCreate(CopyPQElement copy_element,
  
     queue->size = 0;
     queue->max_size = INITIAL_SIZE;
-    // queue->iterator = NULL;
     
     queue->copy_element = copy_element;
     queue->free_element = free_element;
@@ -304,7 +303,6 @@ PriorityQueue pqCopy(PriorityQueue queue) {
     newQueue->compare_priorities = queue->compare_priorities;
 
     for(int i = 0; i < queue->size; i++) {
-        // how to test??
         if(pqInsert(newQueue, queue->list_of_elements[i].element, queue->list_of_elements[i].priority) == PQ_OUT_OF_MEMORY) {
             pqDestroy(newQueue);
             return NULL;
@@ -375,6 +373,8 @@ PriorityQueueResult pqInsert(PriorityQueue queue, PQElement element, PQElementPr
         return PQ_OUT_OF_MEMORY;
     }
 
+    queue->list_of_elements[current_element_index].used = false;
+
     queue->size++;
 
     clearIterator(queue);
@@ -388,10 +388,6 @@ static void moveElementsLeft(PriorityQueue queue, int index) {
     for(int i = index; i < queue->size-1; i++) {
         queue->list_of_elements[i] = queue->list_of_elements[i+1];
     }
-
-    // rafi says they will cause bugs:
-    // queue->free_element(queue->list_of_elements[queue->size].element);
-    // queue->free_priority(queue->list_of_elements[queue->size].priority);
 
 }
 
