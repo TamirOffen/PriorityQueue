@@ -107,7 +107,9 @@ static int findHighestPriorityElementIndex(const PriorityQueue queue) {
 
 // sets the iterator to be in an undefined state
 static void clearIterator(PriorityQueue queue) {
-    assert(queue != NULL);
+    if(queue == NULL) {
+        return;
+    }
     for(int index = 0; index < queue->size; index++) {
         queue->list_of_elements[index].used = false;
     }
