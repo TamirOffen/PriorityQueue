@@ -34,6 +34,24 @@ int main() {
 
     PriorityQueue pq = pqCreate(copyIntGeneric, freeIntGeneric, equalIntsGeneric, copyIntGeneric, freeIntGeneric, compareIntsGeneric);
 
+    int one = 1, two = 2;
+
+    for(int i = 0; i < 5; i++) {
+        pqInsert(pq, &one, &one);
+    }
+    for(int i = 0; i < 5; i++) {
+        pqInsert(pq, &two, &two);
+    }
+
+    PQ_FOREACH(int*, i, pq) {
+        printf("%d\n", *i);
+    }
+
+    if(pqContains(pq, &one)) {
+        printf("good\n");
+    }
+
+
     pqDestroy(pq);
 
     return 0;
